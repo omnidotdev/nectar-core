@@ -1,0 +1,14 @@
+node_modules
+
+# build
+dist
+.output
+
+# environment
+*.env*
+# below are safe to commit
+!*.env.template
+
+# misc
+*.log
+.DS_Store

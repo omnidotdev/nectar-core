@@ -1,0 +1,4 @@
+set -e
+bun knip
+bun check --staged --no-errors-on-unmatched
+bunx tsc --noEmit
