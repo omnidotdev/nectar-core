@@ -10,7 +10,7 @@ import {
   readTableData,
   runQuery,
   updateRow,
-} from "@/core/server/introspection";
+} from "../core/server/introspection";
 
 /**
  * Integration contract test for the framework-neutral introspection core.

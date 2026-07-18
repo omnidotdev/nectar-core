@@ -15,11 +15,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { useNectarDataSource } from "@/core/data/NectarProvider";
-import { tableDataOptions } from "@/options/db.options";
+import { useNectarDataSource } from "../../core/data/NectarProvider";
+import { tableDataOptions } from "../../options/db.options";
 
-import type { TableFilter } from "@/options/db.options";
-import type { ColumnInfo } from "@/types/database";
+import type { TableFilter } from "../../options/db.options";
+import type { ColumnInfo } from "../../types/database";
 
 interface DataGridProps {
   schema: string;

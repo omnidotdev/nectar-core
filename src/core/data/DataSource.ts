@@ -3,7 +3,7 @@ import type {
   QueryResult,
   TableInfo,
   TableSchema,
-} from "@/types/database";
+} from "../../types/database";
 
 export interface TableFilter {
   column: string;

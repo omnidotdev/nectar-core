@@ -7,19 +7,19 @@
  * `@omnidotdev/nectar-core/server`.
  */
 
-export { DataGrid } from "@/components/db/DataGrid";
-export { QueryInterface } from "@/components/db/QueryInterface";
-export { SchemaViewer } from "@/components/db/SchemaViewer";
-export { SchemaProvider, useSchema } from "@/contexts/SchemaContext";
+export { DataGrid } from "./components/db/DataGrid";
+export { QueryInterface } from "./components/db/QueryInterface";
+export { SchemaViewer } from "./components/db/SchemaViewer";
+export { SchemaProvider, useSchema } from "./contexts/SchemaContext";
 export {
   NectarProvider,
   useNectarDataSource,
-} from "@/core/data/NectarProvider";
+} from "./core/data/NectarProvider";
 export {
   tableDataOptions,
   tableSchemaOptions,
   tablesOptions,
-} from "@/options/db.options";
+} from "./options/db.options";
 
 export type {
   AutocompleteSchema,
@@ -29,7 +29,7 @@ export type {
   TableDataParams,
   TableDataResult,
   TableFilter,
-} from "@/core/data/DataSource";
+} from "./core/data/DataSource";
 export type {
   ColumnInfo,
   ConnectionStatus,
@@ -37,4 +37,4 @@ export type {
   QueryResult,
   TableInfo,
   TableSchema,
-} from "@/types/database";
+} from "./types/database";

@@ -4,7 +4,7 @@ import type {
   NectarDataSource,
   TableDataParams,
   TableFilter,
-} from "@/core/data/DataSource";
+} from "../core/data/DataSource";
 
 // Re-exported so existing importers (e.g. DataGrid) keep a single source of truth
 export type { TableDataParams, TableFilter };

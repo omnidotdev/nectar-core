@@ -1,6 +1,6 @@
 import { beforeEach, expect, test } from "bun:test";
 
-import type { NectarDataSource, PrimaryKeyRef } from "@/core/data/DataSource";
+import type { NectarDataSource, PrimaryKeyRef } from "../core/data/DataSource";
 
 // Stateful in-memory fake proving the interface is complete enough to browse + mutate
 const makeFake = (): NectarDataSource => {

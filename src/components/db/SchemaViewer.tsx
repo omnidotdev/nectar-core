@@ -1,6 +1,6 @@
 import { Key, Link2 } from "lucide-react";
 
-import type { ColumnInfo } from "@/types/database";
+import type { ColumnInfo } from "../../types/database";
 
 interface SchemaViewerProps {
   tableName: string;

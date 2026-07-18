@@ -5,10 +5,20 @@
   "type": "module",
   "license": "Apache-2.0",
   "exports": {
-    ".": "./src/index.ts",
-    "./server": "./src/server.ts"
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js"
+    },
+    "./server": {
+      "types": "./build/server.d.ts",
+      "import": "./build/server.js"
+    }
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
+    "build": "tsup",
     "test": "bun test src",
     "test:watch": "bun test src --watch",
     "check": "biome check --diagnostic-level=error src",
@@ -44,6 +54,7 @@
     "knip": "^5.81.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   }
 }

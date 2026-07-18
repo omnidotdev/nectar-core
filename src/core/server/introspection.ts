@@ -4,13 +4,13 @@ import type {
   PrimaryKeyRef,
   TableDataParams,
   TableDataResult,
-} from "@/core/data/DataSource";
+} from "../../core/data/DataSource";
 import type {
   ColumnInfo,
   QueryResult,
   TableInfo,
   TableSchema,
-} from "@/types/database";
+} from "../../types/database";
 
 /**
  * Framework-neutral database introspection and data operations.

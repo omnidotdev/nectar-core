@@ -19,10 +19,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Download, Loader2, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { useSchema } from "@/contexts/SchemaContext";
-import { useNectarDataSource } from "@/core/data/NectarProvider";
+import { useSchema } from "../../contexts/SchemaContext";
+import { useNectarDataSource } from "../../core/data/NectarProvider";
 
-import type { QueryResult } from "@/types/database";
+import type { QueryResult } from "../../types/database";
 
 // Custom theme for the editor
 const nectarTheme = EditorView.theme({

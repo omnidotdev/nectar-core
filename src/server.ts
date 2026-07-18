@@ -13,7 +13,7 @@ export {
   getConnection,
   getConnectionInfo,
   hasConnection,
-} from "@/core/server/connectionManager";
+} from "./core/server/connectionManager";
 export {
   asSerializableRow,
   asSerializableRows,
@@ -25,6 +25,6 @@ export {
   readTableData,
   runQuery,
   updateRow,
-} from "@/core/server/introspection";
+} from "./core/server/introspection";
 
-export type { SerializableRow } from "@/core/server/introspection";
+export type { SerializableRow } from "./core/server/introspection";

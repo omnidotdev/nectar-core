@@ -4,8 +4,8 @@ import {
   closeConnection,
   createConnection,
   getConnection,
-} from "@/core/server/connectionManager";
-import { runQuery } from "@/core/server/introspection";
+} from "../core/server/connectionManager";
+import { runQuery } from "../core/server/introspection";
 
 /**
  * Integration test for read-only connections in core. Needs a real Postgres,

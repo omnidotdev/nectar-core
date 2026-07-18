@@ -36,7 +36,8 @@
       "!!**/*.gen.*",
       "!!**/bun.lock",
       "!!**/generated",
-      "!!**/public"
+      "!!**/public",
+      "!!build"
     ]
   },
   "formatter": {

@@ -5,9 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import {
   NectarProvider,
   useNectarDataSource,
-} from "@/core/data/NectarProvider";
+} from "../core/data/NectarProvider";
 
-import type { NectarDataSource } from "@/core/data/DataSource";
+import type { NectarDataSource } from "../core/data/DataSource";
 
 const makeFake = (): NectarDataSource => ({
   capabilities: { writable: true },
