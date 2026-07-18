@@ -16,9 +16,10 @@ components (data grid, schema viewer, SQL query interface), the `NectarDataSourc
 contract that decouples the UI from any backend, and a server-only Postgres
 connection manager plus introspection layer.
 
-It is consumed as raw TypeScript source (no build step) via
+It ships pre-built ESM + type declarations in `build/` (produced by `bun run build`
+via [tsup](https://tsup.egoist.dev) and committed to the repo) and is consumed via
 `github:omnidotdev/nectar-core#<sha>`, the same way `@omnidotdev/thornberry` and
-`@omnidotdev/providers` are consumed. The host app (vite or bun) compiles it.
+`@omnidotdev/providers` are consumed.
 
 ## Entry points
 
