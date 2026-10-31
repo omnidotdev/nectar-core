@@ -1,23 +1,10 @@
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { autocompletion } from "@codemirror/autocomplete";
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
-import {
-  bracketMatching,
-  defaultHighlightStyle,
-  syntaxHighlighting,
-} from "@codemirror/language";
-import { Compartment, EditorState } from "@codemirror/state";
-import {
-  EditorView,
-  drawSelection,
-  highlightActiveLine,
-  highlightActiveLineGutter,
-  keymap,
-  lineNumbers,
-} from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
+import { CodeEditor } from "@omnidotdev/thornberry/code-editor";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Download, Loader2, Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useSchema } from "../../contexts/SchemaContext";
 import { useNectarDataSource } from "../../core/data/NectarProvider";
@@ -127,15 +114,28 @@ const wrapKeymap = keymap.of([
   { key: "{", run: wrapSelection("{") },
 ]);
 
-// Compartment for dynamic SQL schema updates
-const sqlCompartment = new Compartment();
+// Execute the query on Cmd/Ctrl+Enter, reading the latest handler through a ref
+const executeKeymap = (run: () => void) =>
+  keymap.of([
+    {
+      key: "Mod-Enter",
+      run: () => {
+        run();
+        return true;
+      },
+    },
+  ]);
+
+// Autocompletion tuned to open while typing and cap the rendered option list
+const nectarAutocompletion = autocompletion({
+  activateOnTyping: true,
+  maxRenderedOptions: 20,
+});
 
 /**
  * SQL query interface component with CodeMirror editor.
  */
 export function QueryInterface() {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null);
   const executeRef = useRef<() => void>(() => {});
   const [query, setQuery] = useState("SELECT * FROM ");
   const [result, setResult] = useState<QueryResult | null>(null);
@@ -156,75 +156,19 @@ export function QueryInterface() {
     },
   });
 
-  // Keep executeRef in sync with current state
+  // Keep executeRef in sync with current state so the stable Mod-Enter keymap
+  // always runs the latest query
   executeRef.current = () => {
-    const currentQuery = viewRef.current?.state.doc.toString() || query;
+    const currentQuery = query;
     if (currentQuery.trim()) {
       executeMutation.mutate(currentQuery.trim());
     }
   };
 
-  // Initialize CodeMirror (runs once)
-  useEffect(() => {
-    if (!editorRef.current || viewRef.current) return;
+  // Build the SQL language extension, scoping completions to the selected schema
+  const language = useMemo(() => {
+    if (!schemaData) return sql({ dialect: PostgreSQL });
 
-    const executeKeymap = keymap.of([
-      {
-        key: "Mod-Enter",
-        run: () => {
-          executeRef.current();
-          return true;
-        },
-      },
-    ]);
-
-    const extensions = [
-      lineNumbers(),
-      highlightActiveLineGutter(),
-      history(),
-      drawSelection(),
-      bracketMatching(),
-      highlightActiveLine(),
-      syntaxHighlighting(defaultHighlightStyle),
-      sqlCompartment.of(sql({ dialect: PostgreSQL })),
-      autocompletion({
-        activateOnTyping: true,
-        maxRenderedOptions: 20,
-      }),
-      wrapKeymap,
-      executeKeymap,
-      keymap.of([...defaultKeymap, ...historyKeymap, ...completionKeymap]),
-      nectarTheme,
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          setQuery(update.state.doc.toString());
-        }
-      }),
-    ];
-
-    const state = EditorState.create({
-      doc: "SELECT * FROM ",
-      extensions,
-    });
-
-    const view = new EditorView({
-      state,
-      parent: editorRef.current,
-    });
-
-    viewRef.current = view;
-
-    return () => {
-      view.destroy();
-      viewRef.current = null;
-    };
-  }, []);
-
-  // Update SQL schema when data or selected schema changes
-  useEffect(() => {
-    if (!viewRef.current || !schemaData) return;
-
-    // Build schema object for CodeMirror SQL - only include selected schema
     const tables: Record<string, string[]> = {};
 
     for (const table of schemaData.tables) {
@@ -234,16 +178,22 @@ export function QueryInterface() {
       }
     }
 
-    viewRef.current.dispatch({
-      effects: sqlCompartment.reconfigure(
-        sql({
-          dialect: PostgreSQL,
-          schema: tables,
-          defaultSchema: selectedSchema,
-        }),
-      ),
+    return sql({
+      dialect: PostgreSQL,
+      schema: tables,
+      defaultSchema: selectedSchema,
     });
   }, [schemaData, selectedSchema]);
+
+  // Stable Nectar-specific extensions layered onto the shared editor's basicSetup
+  const extensions = useMemo(
+    () => [
+      nectarAutocompletion,
+      wrapKeymap,
+      executeKeymap(() => executeRef.current()),
+    ],
+    [],
+  );
 
   const exportToCsv = () => {
     if (!result || result.rows.length === 0) return;
@@ -304,8 +254,12 @@ export function QueryInterface() {
             </button>
           </div>
         </div>
-        <div
-          ref={editorRef}
+        <CodeEditor
+          value={query}
+          onChange={setQuery}
+          language={language}
+          extensions={extensions}
+          theme={nectarTheme}
           className="h-32 overflow-hidden rounded-lg border border-input bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
         />
         <div className="mt-2 flex items-center gap-4 text-muted-foreground text-xs">
