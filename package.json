@@ -34,12 +34,14 @@
     "react-dom": "^19.2.3"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.20.0",
-    "@codemirror/commands": "^6.10.1",
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-sql": "^6.10.0",
-    "@codemirror/language": "^6.12.1",
-    "@codemirror/state": "^6.5.4",
-    "@codemirror/view": "^6.39.11",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.13",
+    "@omnidotdev/thornberry": "github:omnidotdev/thornberry#d3aad59e1b41a85c0e44cec74af06af5d1c1b0b5",
+    "codemirror": "^6.0.2",
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",
     "postgres": "^3.4.8"

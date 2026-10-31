@@ -501,26 +501,13 @@ function DataGrid({ schema, tableName, columns }) {
 }
 
 // src/components/db/QueryInterface.tsx
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { autocompletion } from "@codemirror/autocomplete";
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
-import {
-  bracketMatching,
-  defaultHighlightStyle,
-  syntaxHighlighting
-} from "@codemirror/language";
-import { Compartment, EditorState } from "@codemirror/state";
-import {
-  EditorView,
-  drawSelection,
-  highlightActiveLine,
-  highlightActiveLineGutter,
-  keymap,
-  lineNumbers
-} from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
+import { CodeEditor } from "@omnidotdev/thornberry/code-editor";
 import { useMutation as useMutation2, useQuery as useQuery2 } from "@tanstack/react-query";
 import { Download, Loader2 as Loader22, Play } from "lucide-react";
-import { useEffect, useRef, useState as useState3 } from "react";
+import { useMemo as useMemo2, useRef, useState as useState3 } from "react";
 
 // src/contexts/SchemaContext.tsx
 import { createContext as createContext2, useContext as useContext2, useMemo, useState as useState2 } from "react";
@@ -642,10 +629,20 @@ var wrapKeymap = keymap.of([
   { key: "[", run: wrapSelection("[") },
   { key: "{", run: wrapSelection("{") }
 ]);
-var sqlCompartment = new Compartment();
+var executeKeymap = (run) => keymap.of([
+  {
+    key: "Mod-Enter",
+    run: () => {
+      run();
+      return true;
+    }
+  }
+]);
+var nectarAutocompletion = autocompletion({
+  activateOnTyping: true,
+  maxRenderedOptions: 20
+});
 function QueryInterface() {
-  const editorRef = useRef(null);
-  const viewRef = useRef(null);
   const executeRef = useRef(() => {
   });
   const [query, setQuery] = useState3("SELECT * FROM ");
@@ -665,61 +662,13 @@ function QueryInterface() {
     }
   });
   executeRef.current = () => {
-    const currentQuery = viewRef.current?.state.doc.toString() || query;
+    const currentQuery = query;
     if (currentQuery.trim()) {
       executeMutation.mutate(currentQuery.trim());
     }
   };
-  useEffect(() => {
-    if (!editorRef.current || viewRef.current) return;
-    const executeKeymap = keymap.of([
-      {
-        key: "Mod-Enter",
-        run: () => {
-          executeRef.current();
-          return true;
-        }
-      }
-    ]);
-    const extensions = [
-      lineNumbers(),
-      highlightActiveLineGutter(),
-      history(),
-      drawSelection(),
-      bracketMatching(),
-      highlightActiveLine(),
-      syntaxHighlighting(defaultHighlightStyle),
-      sqlCompartment.of(sql({ dialect: PostgreSQL })),
-      autocompletion({
-        activateOnTyping: true,
-        maxRenderedOptions: 20
-      }),
-      wrapKeymap,
-      executeKeymap,
-      keymap.of([...defaultKeymap, ...historyKeymap, ...completionKeymap]),
-      nectarTheme,
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          setQuery(update.state.doc.toString());
-        }
-      })
-    ];
-    const state = EditorState.create({
-      doc: "SELECT * FROM ",
-      extensions
-    });
-    const view = new EditorView({
-      state,
-      parent: editorRef.current
-    });
-    viewRef.current = view;
-    return () => {
-      view.destroy();
-      viewRef.current = null;
-    };
-  }, []);
-  useEffect(() => {
-    if (!viewRef.current || !schemaData) return;
+  const language = useMemo2(() => {
+    if (!schemaData) return sql({ dialect: PostgreSQL });
     const tables = {};
     for (const table of schemaData.tables) {
       if (table.schema === selectedSchema) {
@@ -727,16 +676,20 @@ function QueryInterface() {
         tables[table.name] = schemaData.schemaMap[key] || [];
       }
     }
-    viewRef.current.dispatch({
-      effects: sqlCompartment.reconfigure(
-        sql({
-          dialect: PostgreSQL,
-          schema: tables,
-          defaultSchema: selectedSchema
-        })
-      )
+    return sql({
+      dialect: PostgreSQL,
+      schema: tables,
+      defaultSchema: selectedSchema
     });
   }, [schemaData, selectedSchema]);
+  const extensions = useMemo2(
+    () => [
+      nectarAutocompletion,
+      wrapKeymap,
+      executeKeymap(() => executeRef.current())
+    ],
+    []
+  );
   const exportToCsv = () => {
     if (!result || result.rows.length === 0) return;
     const headers = result.columns;
@@ -790,9 +743,13 @@ function QueryInterface() {
         ] })
       ] }),
       /* @__PURE__ */ jsx4(
-        "div",
+        CodeEditor,
         {
-          ref: editorRef,
+          value: query,
+          onChange: setQuery,
+          language,
+          extensions,
+          theme: nectarTheme,
           className: "h-32 overflow-hidden rounded-lg border border-input bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
         }
       ),
